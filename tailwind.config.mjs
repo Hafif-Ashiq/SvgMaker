@@ -11,6 +11,9 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      backgroundImage: {
+        "grid-background": "url('/assets/grid-background.svg')"
+      }
     },
   },
   plugins: [],
