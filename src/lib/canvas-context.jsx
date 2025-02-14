@@ -1,7 +1,7 @@
 'use client';
 
 import { Circle, Rect } from 'fabric';
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 // import { fabric } from 'fabric';
 
 const CanvasContext = createContext(undefined);
@@ -14,16 +14,15 @@ export function CanvasProvider({ children }) {
 
     // Basic shape creation
     const addShape = useCallback((type, options = {}) => {
-        console.log(type)
+
         if (!canvas) return;
-        console.log("here");
 
         const defaultOptions = {
             left: 100,
             top: 100,
-            // fill: '#ffffff',
+            fill: 'transparent',
             stroke: '#000000',
-            strokeWidth: 1
+            strokeWidth: 2
         };
 
         let shape;
@@ -43,10 +42,22 @@ export function CanvasProvider({ children }) {
                     radius: 50,
                     ...options
                 });
+                // canvas.isDrawingMode = true;
+                // canvas.freeDrawingBrush = new Circle({
+                //     width: 10,
+                //     height: 10,
+                //     fill: 'transparent',
+                //     stroke: '#000000',
+                //     strokeWidth: 2,
+                //     originX: 'center',
+                //     originY: 'center'
+                // });
                 break;
             default:
                 return;
         }
+
+
 
         canvas.add(shape);
         canvas.setActiveObject(shape);
@@ -60,6 +71,22 @@ export function CanvasProvider({ children }) {
         setActiveObject(null);
         canvas.renderAll();
     }, [canvas, activeObject]);
+
+    // Add event listener for keydown
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'Delete') {
+                deleteSelected();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        // Cleanup event listener on unmount
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [deleteSelected]);
 
     return (
         <CanvasContext.Provider
