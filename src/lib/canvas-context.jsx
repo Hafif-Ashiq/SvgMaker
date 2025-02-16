@@ -2,7 +2,6 @@
 
 import { Canvas, Circle, Rect } from 'fabric';
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
-// import { fabric } from 'fabric';
 
 const CanvasContext = createContext(undefined);
 
@@ -15,7 +14,6 @@ export function CanvasProvider({ children }) {
     const updateActiveObject = () => {
         setActiveObject(canvas.getActiveObject())
     }
-
 
     useEffect(() => {
         if (!canvas) return
@@ -79,8 +77,6 @@ export function CanvasProvider({ children }) {
                 return;
         }
 
-
-
         canvas.add(shape);
         canvas.setActiveObject(shape);
         canvas.renderAll();
@@ -123,18 +119,16 @@ export function CanvasProvider({ children }) {
             height: height
         });
 
-
-
         const copy = await activeObject.clone()
         copy.set({
             left: 0, // Adjust based on the viewBox
             top: 0    // Adjust based on the viewBox
         });
         newCanvas.add(copy);
-        console.log("cloned");
 
         // Convert the new Fabric canvas to SVG
-        const svg = newCanvas.toSVG();
+        let svg = newCanvas.toSVG();
+        svg = svg.replace(/<desc>.*?<\/desc>/, '');
         console.log(svg); // You can handle the new SVG as needed
 
         const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8;' });
