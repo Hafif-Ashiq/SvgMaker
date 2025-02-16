@@ -1,6 +1,6 @@
 'use client';
 
-import { Circle, Rect } from 'fabric';
+import { Canvas, Circle, Rect } from 'fabric';
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 // import { fabric } from 'fabric';
 
@@ -113,14 +113,30 @@ export function CanvasProvider({ children }) {
     }, [deleteSelected]);
 
 
-    const exportAsSvg = useCallback(() => {
+    const exportAsSvg = useCallback(async () => {
         if (!canvas || !activeObject) return;
-        const svg = `<?xml version="1.0" encoding="UTF-8" standalone="no" ?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-        <svg height="64px" width="64px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 60 60" xml:space="preserve"> 
-        ${activeObject.toSVG()}
-        </svg>`;
 
-        // const svg = canvas.toSVG()
+        const { width, height } = activeObject.getBoundingRect();
+
+        const newCanvas = new Canvas(document.createElement('canvas'), {
+            width: width,
+            height: height
+        });
+
+
+
+        const copy = await activeObject.clone()
+        copy.set({
+            left: 0, // Adjust based on the viewBox
+            top: 0    // Adjust based on the viewBox
+        });
+        newCanvas.add(copy);
+        console.log("cloned");
+
+        // Convert the new Fabric canvas to SVG
+        const svg = newCanvas.toSVG();
+        console.log(svg); // You can handle the new SVG as needed
+
         const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8;' });
         const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
@@ -129,6 +145,9 @@ export function CanvasProvider({ children }) {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+
+        newCanvas.dispose();
+
     }, [canvas, activeObject]);
 
 

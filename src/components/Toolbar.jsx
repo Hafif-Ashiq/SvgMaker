@@ -24,7 +24,6 @@ const Toolbar = () => {
                 top: canvas.height / 2 - 100
             })
         },
-
     ]
 
     return (
