@@ -6,13 +6,16 @@ import Toolbar from '@/components/Toolbar'
 
 const CanvasPage = () => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
-    const { setCanvas, zoom, setActiveObject } = useCanvasContext()
+    const { setCanvas, zoom } = useCanvasContext()
 
     useEffect(() => {
         if (canvasRef.current) {
             const fabricCanvas = new Canvas(canvasRef.current, {
                 width: window.innerWidth,
                 height: window.innerHeight,
+                // selectionColor: "#000000",
+                selectionBorderColor: "#00ff00",
+                selectionColor: "#00ff0010"
                 // backgroundColor: '#ffffff'
             })
 

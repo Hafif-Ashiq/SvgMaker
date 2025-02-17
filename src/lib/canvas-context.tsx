@@ -27,7 +27,7 @@ export function CanvasProvider({ children }: CanvasProviderProps) {
     const [activeObject, setActiveObject] = useState<any>(null); // You can replace 'any' with a more specific type if known
     const [zoom, setZoom] = useState<number>(1);
 
-    const updateActiveObject = () => {
+    const updateActiveObject = (o: any) => {
         setActiveObject(canvas?.getActiveObject());
     };
 
@@ -43,7 +43,7 @@ export function CanvasProvider({ children }: CanvasProviderProps) {
 
     useEffect(() => {
         if (!canvas) return;
-        canvas.selection;
+
         canvas.on("selection:created", updateActiveObject);
         canvas.on("selection:updated", updateActiveObject);
         canvas.on("selection:cleared", updateActiveObject);
@@ -63,12 +63,15 @@ export function CanvasProvider({ children }: CanvasProviderProps) {
     const addShape = useCallback((type: string, options: any = {}) => { // You can replace 'any' with a more specific type if known
         if (!canvas) return;
 
-        const defaultOptions = {
+        const defaultOptions: Partial<fabric.Object> = {
             left: 100,
             top: 100,
             fill: 'transparent',
             stroke: '#000000',
-            strokeWidth: 2
+            strokeWidth: 2,
+            cornerStyle: "circle",
+            transparentCorners: false,
+            cornerSize: 8,
         };
 
         let shape;
