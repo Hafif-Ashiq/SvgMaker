@@ -5,7 +5,7 @@ import { useCanvasContext, CanvasProvider } from '@/lib/canvas-context'
 import Toolbar from '@/components/Toolbar'
 
 const CanvasPage = () => {
-    const canvasRef = useRef(null)
+    const canvasRef = useRef<HTMLCanvasElement | null>(null)
     const { setCanvas, zoom, setActiveObject } = useCanvasContext()
 
     useEffect(() => {
@@ -20,9 +20,11 @@ const CanvasPage = () => {
             fabricCanvas.renderAll()
 
             // Cleanup on unmount
-            return () => fabricCanvas.dispose()
+            return () => {
+                fabricCanvas.dispose()
+            }
         }
-    }, [])
+    }, [setCanvas])
 
     return (
         <div className='w-screen h-screen bg-grid-background bg-repeat bg-[length:18]'>

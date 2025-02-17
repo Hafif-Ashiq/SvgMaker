@@ -1,41 +1,67 @@
 'use client';
 
 import { Canvas, Circle, Rect } from 'fabric';
-import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 
-const CanvasContext = createContext(undefined);
+interface CanvasContextType {
+    canvas: Canvas | null;
+    setCanvas: (canvas: Canvas | null) => void;
+    activeObject: any; // You can replace 'any' with a more specific type if known
+    setActiveObject: (object: any) => void; // You can replace 'any' with a more specific type if known
+    zoom: number;
+    setZoom: (zoom: number) => void;
+    addShape: (type: string, options?: any) => void; // You can replace 'any' with a more specific type if known
+    deleteSelected: () => void;
+    exportAsSvg: () => Promise<void>;
+}
 
-export function CanvasProvider({ children }) {
+const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
+
+interface CanvasProviderProps {
+    children: ReactNode;
+}
+
+export function CanvasProvider({ children }: CanvasProviderProps) {
     // Core canvas state
-    const [canvas, setCanvas] = useState(null);
-    const [activeObject, setActiveObject] = useState(null);
-    const [zoom, setZoom] = useState(1);
+    const [canvas, setCanvas] = useState<Canvas | null>(null);
+    const [activeObject, setActiveObject] = useState<any>(null); // You can replace 'any' with a more specific type if known
+    const [zoom, setZoom] = useState<number>(1);
 
     const updateActiveObject = () => {
-        setActiveObject(canvas.getActiveObject())
-    }
+        setActiveObject(canvas?.getActiveObject());
+    };
+
+    const objectSelected = (o: any) => { // You can replace 'any' with a more specific type if known
+        const activeObj = o.target;
+        if (activeObj.get('type') === 'group') {
+            activeObj.set({
+                'borderColor': '#ff00ff',
+                'cornerColor': '#000000'
+            });
+        }
+    };
 
     useEffect(() => {
-        if (!canvas) return
-
+        if (!canvas) return;
+        canvas.selection;
         canvas.on("selection:created", updateActiveObject);
         canvas.on("selection:updated", updateActiveObject);
         canvas.on("selection:cleared", updateActiveObject);
+        // canvas.on('object:selected', objectSelected);
 
         return () => {
             canvas.off("selection:created", updateActiveObject);
             canvas.off("selection:updated", updateActiveObject);
             canvas.off("selection:cleared", updateActiveObject);
+            // canvas.off('object:selected', objectSelected);
+
             canvas.dispose();
         };
-    }, [canvas])
+    }, [canvas]);
 
     // Basic shape creation
-    const addShape = useCallback((type, options = {}) => {
-
+    const addShape = useCallback((type: string, options: any = {}) => { // You can replace 'any' with a more specific type if known
         if (!canvas) return;
-
-        console.log(canvas)
 
         const defaultOptions = {
             left: 100,
@@ -48,7 +74,6 @@ export function CanvasProvider({ children }) {
         let shape;
         switch (type) {
             case 'rectangle':
-
                 shape = new Rect({
                     ...defaultOptions,
                     width: 100,
@@ -62,27 +87,14 @@ export function CanvasProvider({ children }) {
                     radius: 50,
                     ...options
                 });
-                // canvas.isDrawingMode = true;
-                // canvas.freeDrawingBrush = new Circle({
-                //     width: 10,
-                //     height: 10,
-                //     fill: 'transparent',
-                //     stroke: '#000000',
-                //     strokeWidth: 2,
-                //     originX: 'center',
-                //     originY: 'center'
-                // });
                 break;
             default:
                 return;
         }
-
         canvas.add(shape);
         canvas.setActiveObject(shape);
         canvas.renderAll();
     }, [canvas]);
-
-
 
     // Delete selected object
     const deleteSelected = useCallback(() => {
@@ -94,7 +106,7 @@ export function CanvasProvider({ children }) {
 
     // Add event listener for keydown
     useEffect(() => {
-        const handleKeyDown = (event) => {
+        const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Delete') {
                 deleteSelected();
             }
@@ -108,7 +120,6 @@ export function CanvasProvider({ children }) {
         };
     }, [deleteSelected]);
 
-
     const exportAsSvg = useCallback(async () => {
         if (!canvas || !activeObject) return;
 
@@ -119,7 +130,7 @@ export function CanvasProvider({ children }) {
             height: height
         });
 
-        const copy = await activeObject.clone()
+        const copy = await activeObject.clone();
         copy.set({
             left: 0, // Adjust based on the viewBox
             top: 0    // Adjust based on the viewBox
@@ -141,9 +152,7 @@ export function CanvasProvider({ children }) {
         document.body.removeChild(link);
 
         newCanvas.dispose();
-
     }, [canvas, activeObject]);
-
 
     return (
         <CanvasContext.Provider

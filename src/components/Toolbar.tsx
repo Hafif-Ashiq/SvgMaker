@@ -1,11 +1,20 @@
 import { useCanvasContext } from '@/lib/canvas-context'
-import React from 'react'
+import React, { useEffect } from 'react'
 import ToolSection from './toolbar/ToolSection'
 
-const Toolbar = () => {
+interface Shape {
+    shape: string;
+    icon: string;
+    description: string;
+    onClick: () => void;
+}
+
+const Toolbar: React.FC = () => {
     const { canvas, addShape, deleteSelected, exportAsSvg } = useCanvasContext()
 
-    const shapes = [
+    if (canvas == null) return
+
+    const shapes: Shape[] = [
         {
             shape: "Rectangle",
             icon: "/assets/toolbar-shapes/square.svg",
