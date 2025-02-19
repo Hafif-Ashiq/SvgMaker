@@ -10,7 +10,7 @@ interface Shape {
 }
 
 const Toolbar: React.FC = () => {
-    const { canvas, addShape, deleteSelected, exportAsSvg } = useCanvasContext()
+    const { canvas, addShape, deleteSelected, exportAsSvg, addDrawingTool } = useCanvasContext()
 
     if (canvas == null) return
 
@@ -33,6 +33,13 @@ const Toolbar: React.FC = () => {
                 top: canvas.height / 2 - 100
             })
         },
+        {
+            shape: "Pencil",
+            icon: "/assets/toolbar-shapes/pencil.svg",
+            description: "Add a circle of diameter 200 in the center",
+            onClick: () => addDrawingTool("pen")
+        },
+
     ]
 
     return (
