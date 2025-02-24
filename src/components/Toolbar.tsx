@@ -1,5 +1,5 @@
 import { useCanvasContext } from '@/lib/canvas-context'
-import React, { useEffect } from 'react'
+import React from 'react'
 import ToolSection from './toolbar/ToolSection'
 
 interface Shape {

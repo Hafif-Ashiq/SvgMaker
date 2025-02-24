@@ -1,17 +1,17 @@
 'use client';
 
-import { Canvas, Circle, FabricObject, Rect, TPointerEvent, TPointerEventInfo, Line, Polyline, Path, util } from 'fabric';
+import { Canvas, Circle, FabricObject, Rect, TPointerEvent, TPointerEventInfo, Line, RectProps, CircleProps } from 'fabric';
 // import { Line } from 'fabric/fabric-impl';
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 
 interface CanvasContextType {
     canvas: Canvas | null;
     setCanvas: (canvas: Canvas | null) => void;
-    activeObject: any; // You can replace 'any' with a more specific type if known
-    setActiveObject: (object: any) => void; // You can replace 'any' with a more specific type if known
+    activeObject: FabricObject | null | undefined; // You can replace 'any' with a more specific type if known
+    setActiveObject: (object: FabricObject | null | undefined) => void; // You can replace 'any' with a more specific type if known
     zoom: number;
     setZoom: (zoom: number) => void;
-    addShape: (type: string, options?: any) => void; // You can replace 'any' with a more specific type if known
+    addShape: (type: string, options?: Partial<FabricObject>) => void; // You can replace 'any' with a more specific type if known
     deleteSelected: () => void;
     exportAsSvg: () => Promise<void>;
     addDrawingTool: (tool: string) => void
@@ -26,13 +26,13 @@ interface CanvasProviderProps {
 export function CanvasProvider({ children }: CanvasProviderProps) {
     // Core canvas state
     const [canvas, setCanvas] = useState<Canvas | null>(null);
-    const [activeObject, setActiveObject] = useState<any>(null); // You can replace 'any' with a more specific type if known
+    const [activeObject, setActiveObject] = useState<FabricObject | null | undefined>(null); // You can replace 'any' with a more specific type if known
     const [zoom, setZoom] = useState<number>(1);
 
     const [clipboard, setClipboard] = useState<FabricObject | null>(null);
 
 
-    const updateActiveObject = (o: any) => {
+    const updateActiveObject = () => {
         setActiveObject(canvas?.getActiveObject());
     };
 
@@ -52,10 +52,10 @@ export function CanvasProvider({ children }: CanvasProviderProps) {
 
             canvas.dispose();
         };
-    }, [canvas]);
+    }, [canvas, updateActiveObject]);
 
     // Basic shape creation
-    const addShape = useCallback((type: string, options: any = {}) => { // You can replace 'any' with a more specific type if known
+    const addShape = useCallback((type: string, options?: Partial<FabricObject>) => {
         if (!canvas) return;
 
         const defaultOptions: Partial<fabric.Object> = {
@@ -77,14 +77,14 @@ export function CanvasProvider({ children }: CanvasProviderProps) {
                     width: 100,
                     height: 100,
                     ...options
-                });
+                } as Partial<RectProps>);
                 break;
             case 'circle':
                 shape = new Circle({
                     ...defaultOptions,
                     radius: 50,
                     ...options
-                });
+                } as Partial<CircleProps>);
                 break;
             default:
                 return;

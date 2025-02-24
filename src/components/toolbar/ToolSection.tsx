@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import React from 'react';
 
 interface Shape {
@@ -21,7 +22,7 @@ const ToolSection: React.FC<ToolSectionProps> = ({ label, selectionArray }) => {
                 {
                     selectionArray.map(shape => (
                         <button onClick={shape.onClick} key={shape.shape} className='flex flex-col justify-center items-center'>
-                            <img src={shape.icon} className='w-[40px] h-[40px]' alt="" />
+                            <Image src={shape.icon} width={40} height={40} alt="" />
                             <span>{shape.shape}</span>
                         </button>
                     ))
