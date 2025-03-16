@@ -357,6 +357,9 @@ export class VectorPenTool {
         if (this.anchorPoints.length < 3) {
             // Not enough points to close properly
             this.createFinalPath();
+
+            // Clear anchor points to prevent duplicate path creation on deactivate
+            this.anchorPoints = [];
             return;
         }
 
