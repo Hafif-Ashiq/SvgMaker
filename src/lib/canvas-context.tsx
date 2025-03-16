@@ -1,20 +1,22 @@
 'use client';
 
 import { Canvas, Circle, FabricObject, Rect, TPointerEvent, TPointerEventInfo, Line, RectProps, CircleProps } from 'fabric';
-// import { Line } from 'fabric/fabric-impl';
+
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import { VectorPenTool } from './vector-pen-tool';
 
 interface CanvasContextType {
     canvas: Canvas | null;
     setCanvas: (canvas: Canvas | null) => void;
-    activeObject: FabricObject | null | undefined; // You can replace 'any' with a more specific type if known
-    setActiveObject: (object: FabricObject | null | undefined) => void; // You can replace 'any' with a more specific type if known
+    activeObject: FabricObject | null | undefined;
+    setActiveObject: (object: FabricObject | null | undefined) => void;
     zoom: number;
     setZoom: (zoom: number) => void;
-    addShape: (type: string, options?: Partial<FabricObject>) => void; // You can replace 'any' with a more specific type if known
+    addShape: (type: string, options?: Partial<FabricObject>) => void;
     deleteSelected: () => void;
     exportAsSvg: () => Promise<void>;
-    addDrawingTool: (tool: string) => void
+    addDrawingTool: (tool: string) => void;
+    addPenTool: () => VectorPenTool | undefined;
 }
 
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
@@ -52,7 +54,7 @@ export function CanvasProvider({ children }: CanvasProviderProps) {
 
             canvas.dispose();
         };
-    }, [canvas]);
+    }, [canvas, updateActiveObject]);
 
     // Basic shape creation
     const addShape = useCallback((type: string, options?: Partial<FabricObject>) => {
@@ -115,18 +117,7 @@ export function CanvasProvider({ children }: CanvasProviderProps) {
                 stroke: tool === 'pen' ? '#000000' : '#FF0000',
                 selectable: false,
             });
-            // currentLine = new Polyline([{
-            //     x: pointer.x,
-            //     y: pointer.y
-            // }, {
-            //     x: pointer.x,
-            //     y:pointer.y
-            // }], {
-            //     strokeWidth: 2,
-            //     fill: 'transparent',
-            //     stroke: tool === 'pen' ? '#000000' : '#FF0000',
-            //     selectable: false,
-            // });
+
             canvas.add(currentLine)
 
             // canvas.add(currentLine as fabric.Line);
@@ -167,6 +158,31 @@ export function CanvasProvider({ children }: CanvasProviderProps) {
             canvas.off('mouse:up', stopDrawing);
         };
     }, [canvas]);
+
+
+    const addPenTool = useCallback(() => {
+        if (!canvas) return;
+
+        // Import the VectorPenTool (this will be automatically imported at the top of the file)
+        const penTool = new VectorPenTool(canvas);
+
+        // Activate the pen tool
+        penTool.activate();
+
+        // Provide instructions to the user
+        console.log('Pen Tool activated:');
+        console.log('- Click to add anchor points');
+        console.log('- Click and drag to create curved segments');
+        console.log('- Press "e" to toggle edit mode');
+        console.log('- In edit mode, click on anchor points to select and move them');
+        console.log('- Press Delete/Backspace to remove selected anchor points');
+        console.log('- Double-click to close the path');
+        console.log('- Press Escape to deactivate the pen tool');
+
+        // Return the pen tool instance so it can be used or deactivated later
+        return penTool;
+    }, [canvas]);
+
 
     // Delete selected object
     const deleteSelected = useCallback(() => {
@@ -295,7 +311,8 @@ export function CanvasProvider({ children }: CanvasProviderProps) {
                 addShape,
                 deleteSelected,
                 exportAsSvg,
-                addDrawingTool
+                addDrawingTool,
+                addPenTool
             }}
         >
             {children}
