@@ -360,6 +360,7 @@ export class VectorPenTool {
 
             // Clear anchor points to prevent duplicate path creation on deactivate
             this.anchorPoints = [];
+            this.deactivate();
             return;
         }
 
