@@ -3,7 +3,7 @@ import { Canvas } from 'fabric'
 import React, { useEffect, useRef } from 'react'
 import { useCanvasContext, CanvasProvider } from '@/lib/canvas-context'
 import Toolbar from '@/components/Toolbar'
-
+import PropertiesSection from '@/components/properties/PropertiesSection'
 const CanvasPage = () => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
     const { setCanvas, zoom } = useCanvasContext()
@@ -34,6 +34,7 @@ const CanvasPage = () => {
             <div style={{ transform: `scale(${zoom})` }}>
                 <canvas id='canvas' ref={canvasRef} />
                 <Toolbar />
+                <PropertiesSection />
             </div>
         </div>
     )
