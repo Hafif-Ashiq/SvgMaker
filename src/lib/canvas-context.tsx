@@ -54,7 +54,7 @@ export function CanvasProvider({ children }: CanvasProviderProps) {
 
             canvas.dispose();
         };
-    }, [canvas, updateActiveObject]);
+    }, [canvas]);
 
     // Basic shape creation
     const addShape = useCallback((type: string, options?: Partial<FabricObject>) => {
